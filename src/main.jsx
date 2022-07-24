@@ -8,7 +8,7 @@ import { UserContextProvider } from "./context/UserContext";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <UserContextProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/signup-verification/">
         <App />
       </BrowserRouter>
     </UserContextProvider>
