@@ -11,7 +11,7 @@ const ConfirmPage = () => {
         <div>Username: {contextUser}</div>
         <div>Password: {contextPassword}</div>
       </div>
-      <Link to="/signup/">
+      <Link to="/">
         <button className="form-button submit">back</button>
       </Link>
     </div>
