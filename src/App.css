@@ -10,7 +10,7 @@
 
 html, body {
   width: 100vw;
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 .App {
@@ -49,6 +49,7 @@ input {
   margin: .5rem;
   width: 220px;
   color: rgb(78, 78, 78);
+  font-size: .9rem;
 }
 
 input:focus {
@@ -127,7 +128,7 @@ input:focus {
 
 @media only screen and (min-width: 350px) {
   .sign-up-card {
-    padding: 1rem;
+    padding: 2rem;
   }
 }
 
