@@ -4,6 +4,17 @@ import { useUserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
+const validationsTemp = {
+  passwordPasses: true,
+  lengthPasses: true,
+  symbolPasses: true,
+  numberPasses: true,
+  uppercasePasses: true,
+  lowercasePasses: true,
+  passwordsMatch: true,
+  userNameNotBlank: true,
+};
+
 const SignUpPage = () => {
   const { setContextUser, setContextPassword } = useUserContext();
 
@@ -11,18 +22,13 @@ const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordPasses, setPasswordPasses] = useState(true);
-
-  // Password validation
-  const [lengthPasses, setLengthPasses] = useState(true);
-  const [symbolPasses, setSymbolPasses] = useState(true);
-  const [numberPasses, setNumberPasses] = useState(true);
-  const [uppercasePasses, setUppercasePasses] = useState(true);
-  const [lowercasePasses, setLowercasePasses] = useState(true);
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [userNameNotBlank, setUsernameNotBlank] = useState(true);
+
+  // Validations
+  const [validationState, setValidationState] = useState(validationsTemp);
+
+  const validations = { ...validationsTemp };
 
   const navigate = useNavigate();
 
@@ -34,65 +40,18 @@ const SignUpPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    let errorCount = 0;
+    validations.userNameNotBlank = username !== "";
+    validations.passwordsMatch = password === confirmPassword;
+    validations.lengthPasses = password.length > 6;
+    validations.passwordPasses = password.toLowerCase() !== "password";
+    validations.symbolPasses = symbolsReg.test(password);
+    validations.numberPasses = numbersReg.test(password);
+    validations.uppercasePasses = uppercaseLettersReg.test(password);
+    validations.lowercasePasses = lowercaseLettersReg.test(password);
 
-    if (!username) {
-      setUsernameNotBlank(false);
-      errorCount += 1;
-    } else {
-      setUsernameNotBlank(true);
-    }
+    const validationBooleans = Object.values(validations);
 
-    if (password !== confirmPassword) {
-      setPasswordsMatch(false);
-      errorCount += 1;
-    } else {
-      setPasswordsMatch(true);
-    }
-
-    if (password.length <= 6) {
-      setLengthPasses(false);
-      errorCount += 1;
-    } else {
-      setLengthPasses(true);
-    }
-
-    if (password.toLowerCase() == "password") {
-      setPasswordPasses(false);
-      errorCount += 1;
-    } else {
-      setPasswordPasses(true);
-    }
-
-    if (!symbolsReg.test(password)) {
-      setSymbolPasses(false);
-      errorCount += 1;
-    } else {
-      setSymbolPasses(true);
-    }
-
-    if (!numbersReg.test(password)) {
-      setNumberPasses(false);
-      errorCount += 1;
-    } else {
-      setNumberPasses(true);
-    }
-
-    if (!uppercaseLettersReg.test(password)) {
-      setUppercasePasses(false);
-      errorCount += 1;
-    } else {
-      setUppercasePasses(true);
-    }
-
-    if (!lowercaseLettersReg.test(password)) {
-      setLowercasePasses(false);
-      errorCount += 1;
-    } else {
-      setLowercasePasses(true);
-    }
-
-    if (errorCount === 0) {
+    if (!validationBooleans.includes(false)) {
       // make api call (this is a fake one)
       try {
         const response = { message: "Fake response message", status: 201 };
@@ -105,6 +64,8 @@ const SignUpPage = () => {
         // set and display error message
         console.error(error);
       }
+    } else {
+      setValidationState(validations);
     }
   };
 
@@ -113,14 +74,7 @@ const SignUpPage = () => {
     setUsername("");
     setPassword("");
     setConfirmPassword("");
-    setLengthPasses(true);
-    setPasswordPasses(true);
-    setSymbolPasses(true);
-    setNumberPasses(true);
-    setUppercasePasses(true);
-    setLowercasePasses(true);
-    setPasswordsMatch(true);
-    setUsernameNotBlank(true);
+    setValidationState(validationsTemp);
   };
 
   return (
@@ -190,28 +144,46 @@ const SignUpPage = () => {
         <div className="requirements-container">
           <h3 className="requirements-title">Password Requirements:</h3>
           <ul className="requirements-list">
-            <li id="password-warn" className={!passwordPasses ? "red" : ""}>
+            <li
+              id="password-warn"
+              className={!validationState.passwordPasses ? "red" : ""}
+            >
               cannot be "password"
             </li>
-            <li id="length-warn" className={!lengthPasses ? "red" : ""}>
+            <li
+              id="length-warn"
+              className={!validationState.lengthPasses ? "red" : ""}
+            >
               must be greater than 6 characters
             </li>
-            <li id="symbol-warn" className={!symbolPasses ? "red" : ""}>
+            <li
+              id="symbol-warn"
+              className={!validationState.symbolPasses ? "red" : ""}
+            >
               must contain a symbol !@#$%^&*
             </li>
-            <li id="number-warn" className={!numberPasses ? "red" : ""}>
+            <li
+              id="number-warn"
+              className={!validationState.numberPasses ? "red" : ""}
+            >
               must contain at least one number
             </li>
-            <li id="upper-warn" className={!uppercasePasses ? "red" : ""}>
+            <li
+              id="upper-warn"
+              className={!validationState.uppercasePasses ? "red" : ""}
+            >
               must contain at least one uppercase letter
             </li>
-            <li id="lower-warn" className={!lowercasePasses ? "red" : ""}>
+            <li
+              id="lower-warn"
+              className={!validationState.lowercasePasses ? "red" : ""}
+            >
               must contain at least one lowercase letter
             </li>
-            {!passwordsMatch && (
+            {!validationState.passwordsMatch && (
               <li id="password-match">passwords do not match</li>
             )}
-            {!userNameNotBlank && (
+            {!validationState.userNameNotBlank && (
               <li id="password-match">username cannot be empty</li>
             )}
           </ul>
